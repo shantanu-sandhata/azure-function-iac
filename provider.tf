@@ -10,5 +10,5 @@ terraform {
 
 # Azure provider configuration block.
 provider "azurerm" {
-  feature {}
+  features {}
 }
