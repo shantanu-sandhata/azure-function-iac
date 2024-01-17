@@ -7,7 +7,7 @@ trigger:
 - none
 
 pool:
-  vmImage: "SandhataVmssPool"
+  name: "SandhataVmssPool"
 
 variables:
   bkstrgrg: "sandhata"
