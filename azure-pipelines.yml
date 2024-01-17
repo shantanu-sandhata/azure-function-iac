@@ -16,7 +16,7 @@ variables:
   bkstrgkey: "sandhatafunc.tfstate"
 
 stages:
-  - stage: Terraform Validate
+  - stage: TerraformValidate
     jobs:
       - job: validate
         continueOnError: false
