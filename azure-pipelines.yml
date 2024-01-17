@@ -62,8 +62,8 @@ stages:
             displayName: Terraform Plan
           - task: ArchiveFiles@2
             inputs:
-              rootFolderOrFile: '$(Build.SourcesDirectory)'
-              includeRootFolder: true
+              rootFolderOrFile: '$(Build.SourcesDirectory)/'
+              includeRootFolder: false
               archiveType: 'zip'
               archiveFile: '$(Build.ArtifactStagingDirectory)/$(Build.BuildId).zip'
               replaceExistingArchive: true
