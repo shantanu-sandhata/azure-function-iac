@@ -62,7 +62,7 @@ stages:
             inputs:
               provider: 'azurerm'
               command: 'custom'
-              customCommand: '-chdir= $(Build.SourcesDirectory)'
+              customCommand: '-chdir=$(Build.SourcesDirectory)'
               commandOptions: 'plan -out tfplanfile'
               outputTo: 'console'
               environmentServiceNameAzureRM: 'Sandhata (6f6b6f42-7704-42fa-b07a-9db961090f1b)-1879'
