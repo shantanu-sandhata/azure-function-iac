@@ -21,6 +21,9 @@ stages:
       - job: Terraform
         continueOnError: false
         steps:
+          - bash: |
+              sudo apt-get install -y zip
+            displayName: "Installing Zip"
           - task: TerraformInstaller@1
             inputs:
               terraformVersion: 'latest'
