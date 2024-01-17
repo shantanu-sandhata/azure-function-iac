@@ -16,9 +16,9 @@ variables:
   bkstrgkey: "sandhatafunc.tfstate"
 
 stages:
-  - stage: TerraformValidate
+  - stage: TerraformBuild
     jobs:
-      - job: tfvalidate
+      - job: Terraform
         continueOnError: false
         steps:
           - task: TerraformInstaller@1
@@ -40,35 +40,32 @@ stages:
               provider: 'azurerm'
               command: 'validate'
             displayName: Terraform Validate
-  - stage: TerraformDeploy
-    condition: succeeded('TerraformValidate')
-    dependsOn: TerraformValidate
-    jobs:
-      - job: apply
-        steps:
-          - task: TerraformInstaller@1
-            inputs:
-              terraformVersion: 'latest'
-            displayName: Install Terraform
           - task: TerraformTaskV4@4
             inputs:
               provider: 'azurerm'
-              command: 'init'
-              backendServiceArm: 'Sandhata (6f6b6f42-7704-42fa-b07a-9db961090f1b)-1646'
-              backendAzureRmResourceGroupName: '$(bkstrgrg)'
-              backendAzureRmStorageAccountName: '$(bkstrgacc)'
-              backendAzureRmContainerName: '$(bkcontainer)'
-              backendAzureRmKey: '$(bkstrgkey)'
-            displayName: Terraform Init
+              command: 'custom'
+              customCommand: 'fmt'
+              outputTo: 'console'
+              environmentServiceNameAzureRM: 'Sandhata (6f6b6f42-7704-42fa-b07a-9db961090f1b)-1879'
+            displayName: Terraform Fmt
           - task: TerraformTaskV4@4
             inputs:
               provider: 'azurerm'
               command: 'plan'
-              environmentServiceNameAzureRM: 'Sandhata (6f6b6f42-7704-42fa-b07a-9db961090f1b)-1646'
-            displayName: Terraform Plan
-          - task: TerraformTaskV4@4
-            inputs:
-              provider: 'azurerm'
-              command: 'apply'
+              commandOptions: '- out $(Build.SourcesDirectory)/tfplanfile'
               environmentServiceNameAzureRM: 'Sandhata (6f6b6f42-7704-42fa-b07a-9db961090f1b)-1879'
-            displayName: Terraform Apply
+            displayName: Terraform Plan
+          - task: ArchiveFiles@2
+            inputs:
+              rootFolderOrFile: '$(Build.SourcesDirectory)'
+              includeRootFolder: true
+              archiveType: 'zip'
+              archiveFile: '$(Build.ArtifactStagingDirectory)/$(Build.BuildId).zip'
+              replaceExistingArchive: true
+            displayName: Archive Files
+          - task: PublishBuildArtifacts@1
+            inputs:
+              PathtoPublish: '$(Build.ArtifactStagingDirectory)'
+              ArtifactName: '$(Build.BuildId)-build'
+              publishLocation: 'Container'
+            displayName: Publishing Aritifact
