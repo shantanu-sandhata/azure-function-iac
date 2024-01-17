@@ -18,21 +18,57 @@ variables:
 stages:
   - stage: TerraformValidate
     jobs:
-      - job: validate
+      - job: tfvalidate
         continueOnError: false
         steps:
-          - bash: |
-             sudo apt-get update && sudo apt-get install -y gnupg software-properties-common 
-             wget -O- https://apt.releases.hashicorp.com/gpg | \
-             gpg --dearmor | \
-             sudo tee /usr/share/keyrings/hashicorp-archive-keyring.gpg
-             gpg --no-default-keyring \
-             --keyring /usr/share/keyrings/hashicorp-archive-keyring.gpg \
-             --fingerprint
-             echo "deb [signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] \
-             https://apt.releases.hashicorp.com $(lsb_release -cs) main" | \
-             sudo tee /etc/apt/sources.list.d/hashicorp.list
-             sudo apt update 
-             sudo apt-get install terraform
-          - bash: |
-              terraform --version
+          - task: TerraformInstaller@1
+            inputs:
+              terraformVersion: 'latest'
+            displayName: Install Terraform
+          - task: TerraformTaskV4@4
+            inputs:
+              provider: 'azurerm'
+              command: 'init'
+              backendServiceArm: 'Sandhata (6f6b6f42-7704-42fa-b07a-9db961090f1b)-1646'
+              backendAzureRmResourceGroupName: '$(bkstrgrg)'
+              backendAzureRmStorageAccountName: '$(bkstrgacc)'
+              backendAzureRmContainerName: '$(bkcontainer)'
+              backendAzureRmKey: '$(bkstrgkey)'
+            displayName: Terraform Init
+          - task: TerraformTaskV4@4
+            inputs:
+              provider: 'azurerm'
+              command: 'validate'
+            displayName: Terraform Validate
+  - stage: TerraformDeploy
+    condition: succeeded('TerraformValidate')
+    dependsOn: TerraformValidate
+    jobs:
+      - job: apply
+        steps:
+          - task: TerraformInstaller@1
+            inputs:
+              terraformVersion: 'latest'
+            displayName: Install Terraform
+          - task: TerraformTaskV4@4
+            inputs:
+              provider: 'azurerm'
+              command: 'init'
+              backendServiceArm: 'Sandhata (6f6b6f42-7704-42fa-b07a-9db961090f1b)-1646'
+              backendAzureRmResourceGroupName: '$(bkstrgrg)'
+              backendAzureRmStorageAccountName: '$(bkstrgacc)'
+              backendAzureRmContainerName: '$(bkcontainer)'
+              backendAzureRmKey: '$(bkstrgkey)'
+            displayName: Terraform Init
+          - task: TerraformTaskV4@4
+            inputs:
+              provider: 'azurerm'
+              command: 'plan'
+              environmentServiceNameAzureRM: 'Sandhata (6f6b6f42-7704-42fa-b07a-9db961090f1b)-1646'
+            displayName: Terraform Plan
+          - task: TerraformTaskV4@4
+            inputs:
+              provider: 'azurerm'
+              command: 'apply'
+              environmentServiceNameAzureRM: 'Sandhata (6f6b6f42-7704-42fa-b07a-9db961090f1b)-1879'
+            displayName: Terraform Apply
