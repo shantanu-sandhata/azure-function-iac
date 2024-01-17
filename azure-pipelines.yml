@@ -62,8 +62,8 @@ stages:
             inputs:
               provider: 'azurerm'
               command: 'custom'
-              customCommand: 'plan'
-              commandOptions: '-chdir= $(Build.SourcesDirectory) -out /planfile'
+              customCommand: '-chdir= $(Build.SourcesDirectory)'
+              commandOptions: 'plan -out tfplanfile'
               outputTo: 'console'
               environmentServiceNameAzureRM: 'Sandhata (6f6b6f42-7704-42fa-b07a-9db961090f1b)-1879'
             displayName: Terraform Plan
