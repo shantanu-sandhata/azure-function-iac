@@ -155,5 +155,7 @@ resource "azurerm_monitor_metric_alert" "resp_time" {
     "Name"       = "Sandhata Func response time is greater than 4 sec"
     "Managed_by" = "Terraform"
     "Project"    = var.project
+    "Change" = "True"
+
   }
 }
